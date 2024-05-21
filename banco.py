@@ -6,9 +6,9 @@ def menu():
     return int(input('= '))
  
 extrato = ''
-limite = 500
+limite = 1000
 numero_saques = 0
-LIMITE_SAQUES = 3
+LIMITE_SAQUES = 5
 saldo = 0
  
 while True:   
@@ -35,9 +35,9 @@ while True:
             limite_excedido = valor > limite
             
             if saldo_excedido: 
-                print('Saldo insuficiente!\n ')
+                print('Operação inválida! Saldo insuficiente!\n ')
             elif limite_excedido:
-                print('Excedeu o limite de saque!\n ')   
+                print('Operação inválida! Excedeu o limite de saque!\n ')   
             else:
                 saldo-=valor
                 extrato+= f'Saque de {valor:.2f}\n'
@@ -45,7 +45,7 @@ while True:
             print('\n---------------------------------------------\n')
 
         else:
-            print('O numero de saques permitidos foi excedido!\n ')
+            print('Operação inválida! O numero de saques permitidos foi excedido!\n ')
     elif op == 3:
         print('\n-------------------EXTRATO-------------------\n')
         print(extrato)
