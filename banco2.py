@@ -3,23 +3,23 @@ from random import randint as rd
 def menu():
     print('\n=============================================')
     print('Informe o que deseja fazer:')
-    print('1 - Depositar\n2 - Sacar\n3 - Extrato\n4 - Cadastrar cliente\n5 - Criar conta\n6 - Sair')
+    print('1 - Depositar\n2 - Sacar\n3 - Extrato\n4 - Cadastrar cliente\n5 - Criar conta\n6 - consultar conta\n7 - consultar cliente\n8 - Sair')
     print('=============================================\n')
     return int(input('= '))
-
-#def criar_usuario(usuarios):
     
 
-def depositar(valor, conta):
+def depositar(valor, saldo, extrato):
     if valor > 0:
-        conta['saldo'] += valor
-        conta['extrato'] += f'Deposito de: {valor:.2f}\n'
-                
+        saldo += valor
+        extrato += f'Deposito de: {valor:.2f}\n'
+               
     else:
         print('Operação falhou, tente novamente!!\n')
-    return conta
+    return saldo, extrato
 
-def sacar(valor, saldo, extrato, numero_saques, LIMITE_SAQUES, limite):
+
+#função para sacar o valor
+def sacar(saldo, extrato, numero_saques, LIMITE_SAQUES, limite):
     saque_excedido = numero_saques >= LIMITE_SAQUES
     if saque_excedido == False:
         valor = float(input('Informe o valor que deseja sacar: '))
@@ -40,31 +40,71 @@ def sacar(valor, saldo, extrato, numero_saques, LIMITE_SAQUES, limite):
 
     return saldo, extrato, numero_saques
  
-def imprimir_extrato(extrato, saldo):
-    print(extrato)
-    print(f'Saldo total: {saldo:.2f}')
 
+def imprimir_extrato(contas):
+    cpf = input('Informe o seu cpf: ')
+    
+    for conta in contas:
+        if conta['cpf'] == cpf:
+            print('\n-------------------EXTRATO-------------------\n')
+            print(conta['extrato'])
+            print('\n---------------------------------------------\n')
+        else:
+            print('Conta não encontrada!!')
 def cadastrar_cliente(clientes):
     cpf = input('Informe o seu cpf: ')
     
-    for i in clientes:
-        if i['cpf'] == cpf:
+    for cliente in clientes:
+        if cliente['cpf'] == cpf:
             return
         
     nome = input('Informe o seu nome: ')
     
     clientes.append({"nome": nome, "cpf": cpf})
+    print('Cliente cadastrado com sucesso!')
+
+
+def verificar_cliente_cpf(clientes, cpf):
+    for cliente in clientes:
+        if cliente['cpf'] == cpf:
+            return cliente
+    return None
+    
+def consultar_cliente(clientes):
+    cpf = input('Informe o seu cpf: ')
+    for cliente in clientes:
+        if cliente['cpf'] == cpf:
+            print(cliente)
 
 def gerar_numero():
-    return rd(100000000, 9999999999)
+    return rd(1000000000, 99999999999)
 
-def criar_conta(AGENCIA, contas, clientes, saldo):
+
+#verificar se o cpf está cadastrado em alguma conta
+def verificar_conta_cpf(contas, cpf):
+    for conta in contas:
+        if conta['cpf'] == cpf:
+            return conta
+    return None
+
+#cria uma nova conta
+def criar_conta(AGENCIA, contas, clientes, saldo, extrato):
     cpf = input('Informe o seu cpf: ')
     for cliente in clientes:
         if cliente['cpf'] == cpf:
             numero_conta  = gerar_numero()
-            contas.append({'agencia': AGENCIA, 'numero_conta': numero_conta, 'cliente': cliente, 'saldo': saldo})
+            
+            contas.append({'agencia': AGENCIA, 'numero_conta': numero_conta, 'saldo': saldo,'extrato': extrato, 'cpf': cpf})
+            print('Conta criada com sucesso!')
+        else:
+            print('cliente não cadastrado!!')
 
+#imprime as informações de uma conta
+def consultar_conta(contas):
+    cpf = input('Informe o seu cpf: ')
+    conta = verificar_conta_cpf(contas, cpf)
+    if conta:
+        print(conta)
       
 def main(): 
     clientes = []
@@ -76,37 +116,57 @@ def main():
     saldo = 0
     AGENCIA = '0001'
     
+    
     while True:   
         op = menu()
         
         if op == 1:
             print('\n---------------------------------------------\n')
             cpf = input('Informe o seu cpf: ')
-            for conta in contas:
-                if conta['cliente']['cpf']== cpf:
-                    valor = float(input('Informe o valor que deseja depositar: '))
-                    contas = depositar(valor, contas)
+            conta_encontrada = False
+            conta = verificar_conta_cpf(contas, cpf)
+            if conta:
+                conta_encontrada = True
+                valor = float(input('Informe o valor que deseja depositar: '))
+                conta['saldo'], conta['extrato'] = depositar(valor, conta['saldo'], conta['extrato'])
                     
-                else:
-                    print('Crie primeiro uma conta!\n')
-                    
+                print('Deposito relizado com sucesso!\n')
+            if not conta_encontrada:
+                print('A operação falhou! Crie uma conta primeiro!\n')    
+  
             print('\n---------------------------------------------\n')
         elif op == 2:
             print('\n---------------------------------------------\n')
-            saldo, extrato, numero_saques = sacar(valor, saldo, extrato, numero_saques, LIMITE_SAQUES, limite)
+            cpf = input('Informe o seu cpf: ')
+            conta_encontrada = False
+            
+            conta = verificar_conta_cpf(contas, cpf)
+            if conta:
+                conta_encontrada = True
+                conta['saldo'], conta['extrato'], numero_saques = sacar(conta['saldo'], conta['extrato'], numero_saques, LIMITE_SAQUES, limite)
+                print('Saque realizado com sucesso!') 
+
+            if not conta_encontrada:
+                print('A operação falhou! Crie uma conta primeiro!\n')     
             print('\n---------------------------------------------\n')
         elif op == 3:
-            print('\n-------------------EXTRATO-------------------\n')
-            imprimir_extrato(extrato, saldo)
-            print('\n---------------------------------------------\n')
+    
+            imprimir_extrato(contas)
+            
         elif op == 4:
             cadastrar_cliente(clientes)
+            
             print(clientes)
             
         elif op == 5:
-            criar_conta(AGENCIA, contas, clientes, saldo)
+            criar_conta(AGENCIA, contas, clientes, saldo, extrato)
+            
             print(contas)
         elif op == 6:
+            consultar_conta(contas)
+        elif op == 7:
+            pass
+        elif op == 8:
             print('Programa encerrado...\n ')
             break
         else:
