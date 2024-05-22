@@ -1,4 +1,3 @@
-from random import randint as rd
 
 def menu():
     print('\n=============================================')
@@ -40,27 +39,31 @@ def sacar(saldo, extrato, numero_saques, LIMITE_SAQUES, limite):
 
     return saldo, extrato, numero_saques
  
-
+ 
 def imprimir_extrato(contas):
-    cpf = input('Informe o seu cpf: ')
-    
-    for conta in contas:
-        if conta['cpf'] == cpf:
-            print('\n-------------------EXTRATO-------------------\n')
-            print(conta['extrato'])
-            print('\n---------------------------------------------\n')
-        else:
-            print('Conta não encontrada!!')
+    cpf = input('Informe o seu cpf(somente numeros): ')
+    conta = verificar_conta_cpf(contas, cpf)
+    if conta:
+        print('\n-------------------EXTRATO-------------------\n')
+        print(conta['extrato'])
+        print('\n---------------------------------------------\n')
+    else:
+        print('Conta não encontrada!!')
+ 
+            
 def cadastrar_cliente(clientes):
-    cpf = input('Informe o seu cpf: ')
+    cpf = input('Informe o seu cpf(somente numeros): ')
     
-    for cliente in clientes:
-        if cliente['cpf'] == cpf:
-            return
+    cliente = verificar_cliente_cpf(clientes, cpf)
+    if cliente:
+        print('Cliente já cadastrado anteriormente!\n')
+        return
         
     nome = input('Informe o seu nome: ')
+    data_nascimento = input('Informe a sua data de nascimento(dd-mm-aaaa): ')
+    endereco = input('Informe o seu endereço (logradouro, nro - bairro - cidade/ sigla estado): ')
     
-    clientes.append({"nome": nome, "cpf": cpf})
+    clientes.append({"nome": nome, "cpf": cpf, "data_nascimento": data_nascimento, "endereco": endereco})
     print('Cliente cadastrado com sucesso!')
 
 
@@ -69,42 +72,47 @@ def verificar_cliente_cpf(clientes, cpf):
         if cliente['cpf'] == cpf:
             return cliente
     return None
+ 
     
 def consultar_cliente(clientes):
-    cpf = input('Informe o seu cpf: ')
+    cpf = input('Informe o seu cpf(somente numeros): ')
     for cliente in clientes:
         if cliente['cpf'] == cpf:
             print(cliente)
 
-def gerar_numero():
-    return rd(1000000000, 99999999999)
+
+#cria uma nova conta
+def criar_conta(AGENCIA, contas, clientes, saldo, extrato):
+    cpf = input('Informe o seu cpf(somente numeros): ')
+    cliente = verificar_cliente_cpf(clientes, cpf)
+    if cliente:
+        numero_conta  = len(contas)+1    
+        contas.append({'agencia': AGENCIA, 'numero_conta': numero_conta, 'saldo': saldo,'extrato': extrato, 'cliente': cliente})
+        print('Conta criada com sucesso!')
+    else:
+        print('Cliente não cadastrado!!')
 
 
 #verificar se o cpf está cadastrado em alguma conta
 def verificar_conta_cpf(contas, cpf):
     for conta in contas:
-        if conta['cpf'] == cpf:
+        if conta['cliente']['cpf'] == cpf:
             return conta
     return None
 
-#cria uma nova conta
-def criar_conta(AGENCIA, contas, clientes, saldo, extrato):
-    cpf = input('Informe o seu cpf: ')
-    for cliente in clientes:
-        if cliente['cpf'] == cpf:
-            numero_conta  = gerar_numero()
-            
-            contas.append({'agencia': AGENCIA, 'numero_conta': numero_conta, 'saldo': saldo,'extrato': extrato, 'cpf': cpf})
-            print('Conta criada com sucesso!')
-        else:
-            print('cliente não cadastrado!!')
+
+def listar_contas(contas):
+    for conta in contas:
+        print(conta)
 
 #imprime as informações de uma conta
 def consultar_conta(contas):
-    cpf = input('Informe o seu cpf: ')
+    cpf = input('Informe o seu cpf(somente numeros): ')
     conta = verificar_conta_cpf(contas, cpf)
     if conta:
         print(conta)
+    else:
+        print('Conta não existente!\n')
       
 def main(): 
     clientes = []
@@ -122,7 +130,7 @@ def main():
         
         if op == 1:
             print('\n---------------------------------------------\n')
-            cpf = input('Informe o seu cpf: ')
+            cpf = input('Informe o seu cpf(somente numeros): ')
             conta_encontrada = False
             conta = verificar_conta_cpf(contas, cpf)
             if conta:
@@ -137,7 +145,7 @@ def main():
             print('\n---------------------------------------------\n')
         elif op == 2:
             print('\n---------------------------------------------\n')
-            cpf = input('Informe o seu cpf: ')
+            cpf = input('Informe o seu cpf(somente numeros): ')
             conta_encontrada = False
             
             conta = verificar_conta_cpf(contas, cpf)
@@ -165,7 +173,7 @@ def main():
         elif op == 6:
             consultar_conta(contas)
         elif op == 7:
-            pass
+            consultar_cliente(clientes)
         elif op == 8:
             print('Programa encerrado...\n ')
             break
